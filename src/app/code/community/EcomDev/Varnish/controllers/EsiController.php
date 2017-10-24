@@ -31,7 +31,7 @@ class EcomDev_Varnish_EsiController extends Mage_Core_Controller_Front_Action
     {
         return Mage::helper('ecomdev_varnish');
     }
-    
+
     public function handleAction()
     {
         // Prevent ESI execution in esi callback
@@ -63,8 +63,12 @@ class EcomDev_Varnish_EsiController extends Mage_Core_Controller_Front_Action
             $this->getResponse()->setBody('Invalid ESI configuration');
             return;
         }
-        
+
         $handles = explode(',', $params['handles']);
+        if (in_array('internal', $handles)) {
+            $this->_getHelper()->setIsInternal(true);
+            $params['ttl'] = -1;
+        }
 
         if (!empty($params['store'])) {
             // Apply a store view for ESI include
