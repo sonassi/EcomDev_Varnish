@@ -16,112 +16,77 @@
  * @author     Ivan Chepurnyi <ivan.chepurnyi@ecomdev.org>
  */
 
-
-use ride\library\varnish\VarnishPool;
-use ride\library\varnish\VarnishAdmin;
-use ride\library\varnish\exception\VarnishException;
-
 /**
  * Connector to the varnish admin
- * 
+ *
  */
 class EcomDev_Varnish_Model_Connector
 {
     const XML_PATH_VARNISH_SERVER = 'varnish/settings/server';
     const XML_PATH_VARNISH_SECRET = 'varnish/settings/secret';
-    const XML_PATH_VARNISH_SECRET_NEWLINE = 'varnish/settings/secret_newline';
-
     const HEADER_OBJECTS = EcomDev_Varnish_Helper_Data::HEADER_OBJECTS;
 
     /**
      * Admin socket for varnish system
-     * 
-     * @var VarnishPool
-     */
-    protected $pool;
-
-    /**
-     * Returns nothing as a different library
-     * used now for varnish communication
      *
-     * @deprecated since 2.0.0
+     * @var VarnishAdminSocket[]
      */
-    public function getAdapter()
-    {
-        return array();
-    }
+    protected $_adapter;
 
     /**
      * Return Varnish Admin socket
-     * 
-     * @return VarnishPool
+     *
+     * @return VarnishAdminSocket[]
      */
-    public function getVarnishPool()
+    public function getAdapter()
     {
-        if ($this->pool === null) {
-            $this->_initVarnishPool();
+        if ($this->_adapter === null) {
+            $this->_initAdapter();
         }
-        
-        return $this->pool;
+
+        return $this->_adapter;
     }
 
-    /**
-     * Initializes varnish pool
-     *
-     * @return $this
-     * @throws VarnishException
-     */
-    protected function _initVarnishPool()
+    protected function _initAdapter()
     {
-        $this->pool = new VarnishPool();
-
+        $this->_adapter = array();
         $addresses =  Mage::getStoreConfig(self::XML_PATH_VARNISH_SERVER);
         $secret = Mage::getStoreConfig(self::XML_PATH_VARNISH_SECRET);
 
-        if (Mage::getStoreConfigFlag(self::XML_PATH_VARNISH_SECRET_NEWLINE)) {
-            $secret .= "\n";
-        }
-        
         $lines = explode("\n", $addresses);
-        $instantiated = array();
         foreach ($lines as $line) {
             $line = trim($line);
-            
-            if (!preg_match('/^[a-z0-9_\-\.]+:\d+$/', $line)
-                || isset($instantiated[$line])) {
+
+            if (!preg_match('/^[a-z0-9\.]+:\d+$/', $line)
+                || isset($this->_adapter[$line])) {
                 continue;
             }
-            
-            list($host, $port) = explode(':', $line);
 
+            list($host, $port) = explode(':', $line);
             try {
-                $this->pool->addServer(new VarnishAdmin($host, $port, $secret));
-            } catch (VarnishException $e) {
+                $this->_adapter[$line] = new VarnishAdminSocket($host, $port, '3');
+                $this->_adapter[$line]->set_auth($secret . "\n");
+                $this->_adapter[$line]->connect();
+            } catch (Exception $e) {
                 Mage::logException($e);
             }
-
-            $instantiated[$line] = true;
         }
-
-        $this->pool->setIgnoreOnFail(true);
 
         return $this;
     }
 
     /**
      * Ban list of tags
-     * 
+     *
      * @param array $tags
      * @return $this
      */
     public function banTags($tags)
     {
-        try {
-            $this->getVarnishPool()->ban('obj.http.' . self::HEADER_OBJECTS . ' ~ ' . implode('|', $tags));
-        } catch (VarnishException $e) {
-            Mage::logException($e);
-        }
-
+        $this->walk(
+            'purge',
+            'obj.http.'.self::HEADER_OBJECTS . ' ~ ' . implode('|', $tags)
+        );
         return $this;
     }
 
@@ -132,20 +97,17 @@ class EcomDev_Varnish_Model_Connector
      * @param null|string|int $firstArg
      * @param null|string|int $secondArg
      * @return $this
-     * @deprecated since 2.0.0
      */
     public function walk($method, $firstArg = null, $secondArg = null)
     {
-        if ($method === 'purge') {
-            $method = 'ban';
-        }
-
-        if ($firstArg === null && $secondArg === null) {
-            $this->getVarnishPool()->$method();
-        } elseif ($secondArg === null) {
-            $this->getVarnishPool()->$method($firstArg);
-        } else {
-            $this->getVarnishPool()->$method($firstArg, $secondArg);
+        foreach ($this->getAdapter() as $adapter) {
+            if ($firstArg === null && $secondArg === null) {
+                $adapter->$method();
+            } elseif ($secondArg === null) {
+                $adapter->$method($firstArg);
+            } else {
+                $adapter->$method($firstArg, $secondArg);
+            }
         }
 
         return $this;
