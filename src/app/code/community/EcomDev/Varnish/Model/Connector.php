@@ -57,7 +57,7 @@ class EcomDev_Varnish_Model_Connector
         foreach ($lines as $line) {
             $line = trim($line);
 
-            if (!preg_match('/^[a-z0-9\.]+:\d+$/', $line)
+            if (!preg_match('/^[a-z0-9\.-]+:\d+$/', $line)
                 || isset($this->_adapter[$line])) {
                 continue;
             }
