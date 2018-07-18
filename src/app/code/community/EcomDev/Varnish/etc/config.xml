@@ -41,6 +41,9 @@
             <ecomdev_varnish>
                 <class>EcomDev_Varnish_Helper</class>
             </ecomdev_varnish>
+            <core>
+                <rewrite><url>EcomDev_Varnish_Helper_Core_Url</url></rewrite>
+            </core>
         </helpers>
         <events>
             <controller_action_predispatch>

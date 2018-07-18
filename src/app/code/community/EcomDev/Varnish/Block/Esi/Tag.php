@@ -41,7 +41,7 @@ class EcomDev_Varnish_Block_Esi_Tag extends Mage_Core_Block_Template
 
     /**
      * Adds handles for rendering ESI include
-     * 
+     *
      * @param string $handle
      * @return $this
      */
@@ -53,7 +53,7 @@ class EcomDev_Varnish_Block_Esi_Tag extends Mage_Core_Block_Template
 
     /**
      * Retrieves list fo added handles for ESI include
-     * 
+     *
      * @return array
      */
     public function getHandles()
@@ -63,7 +63,7 @@ class EcomDev_Varnish_Block_Esi_Tag extends Mage_Core_Block_Template
 
     /**
      * Outputs ESI tag
-     * 
+     *
      * @return string
      */
     protected function _beforeToHtml()
@@ -75,7 +75,8 @@ class EcomDev_Varnish_Block_Esi_Tag extends Mage_Core_Block_Template
             'package' => Mage::getSingleton('core/design_package')->getPackageName(),
             'theme' => Mage::getSingleton('core/design_package')->getTheme('default') ?: 'default',
             'store' => Mage::app()->getStore()->getCode(),
-            'block' => $this->getBlockName()
+            'block' => $this->getBlockName(),
+            'current' => base64_encode($this->helper('core/url')->getCurrentUrl())
         );
 
         if ($this->getTtl()) {
@@ -103,7 +104,7 @@ class EcomDev_Varnish_Block_Esi_Tag extends Mage_Core_Block_Template
 
         $this->setBlockUrl($url);
         $this->setHtmlId($this->getBlockAlias() . '-placeholder');
-        
+
         return parent::_beforeToHtml();
     }
 
@@ -118,7 +119,7 @@ class EcomDev_Varnish_Block_Esi_Tag extends Mage_Core_Block_Template
             'htmlId' => $this->getHtmlId(),
             'url' => $this->getBlockUrl()
         );
-        
+
         return $this->helper('core')->jsonEncode($result);
     }
 }
