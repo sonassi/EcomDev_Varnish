@@ -76,7 +76,7 @@ class EcomDev_Varnish_Block_Esi_Tag extends Mage_Core_Block_Template
             'theme' => Mage::getSingleton('core/design_package')->getTheme('default') ?: 'default',
             'store' => Mage::app()->getStore()->getCode(),
             'block' => $this->getBlockName(),
-            'current' => base64_encode($this->helper('core/url')->getCurrentUrl())
+            'current' => urlencode(base64_encode($this->helper('core/url')->getCurrentUrl()))
         );
 
         if ($this->getTtl()) {
