@@ -18,11 +18,11 @@
 
 /**
  * Varnish Module Helper
- * 
- * Contains methods for storing some data 
+ *
+ * Contains methods for storing some data
  * between recording object load and sending response to customer
- * 
- * 
+ *
+ *
  */
 class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 {
@@ -39,7 +39,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
     const COOKIE_TOKEN_CHECKSUM = 'varnish_token_checksum';
 
     const OBJECT_TAG_FORMAT = ':%s:';
-    
+
     const XML_PATH_ALLOWED_PAGES = 'varnish/pages';
     const XML_PATH_OBJECTS = 'varnish/objects';
     const XML_PATH_PAGE_TTL = 'varnish/pages/%s_time';
@@ -50,62 +50,62 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
     const XML_PATH_SEGMENT_CURRENCY = 'varnish/settings/currency_segment';
     const XML_PATH_GZIP = 'varnish/settings/gzip';
     const XML_PATH_DEBUG = 'varnish/settings/debug';
-    
+
     /**
      * List of tag names for varnish storage
-     * 
+     *
      * @var string[]
      */
     protected $_objectTags = array();
 
     /**
-     * List of custom headers to be send for varnish 
-     * 
+     * List of custom headers to be send for varnish
+     *
      * @var string[]
      */
     protected $_varnishHeaders = array();
 
     /**
-     * List of TTL for the page, 
-     * that are specified in configuration 
-     * or in custom entities list 
-     * 
+     * List of TTL for the page,
+     * that are specified in configuration
+     * or in custom entities list
+     *
      * @var int[]
      */
     protected $_ttlList = array();
 
     /**
      * List of cookies to send to browser
-     * 
+     *
      * @var string[]
      */
     protected $_cookies = array();
 
     /**
      * List of allowed pages that are retrieved from
-     * config xml file definitions 
-     * 
+     * config xml file definitions
+     *
      * @var string[]
      */
     protected $_allowedPages;
 
     /**
      * The current page full action name
-     * 
+     *
      * @var string
      */
     protected $_currentPage;
 
     /**
      * Check if ESI is allowed
-     * 
+     *
      * @var bool
      */
     protected $_isEsiAllowed = false;
 
     /**
      * Check if ESI is used
-     * 
+     *
      * @var bool
      */
     protected $_isEsiUsed = false;
@@ -119,14 +119,14 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Url for ajax reload
-     * 
+     *
      * @var string
      */
     protected $_ajaxReloadUrl;
 
     /**
      * Returns a url for reloading
-     * 
+     *
      * @return string
      */
     public function getAjaxReloadUrl()
@@ -136,10 +136,10 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
                 '_secure' => Mage::app()->getStore()->isCurrentlySecure()
             ));
         }
-        
+
         return $this->_ajaxReloadUrl;
     }
-    
+
     /**
      * Checks if extension is active
      *
@@ -149,10 +149,10 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
     {
         return Mage::getStoreConfig(self::XML_PATH_ACTIVE);
     }
-    
+
     /**
      * Init default varnish headers
-     * 
+     *
      * @return $this
      */
     protected function _initDefaultVarnishHeaders($withoutTags)
@@ -168,23 +168,23 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
                 array($this, 'formatObjectTag'),
                 $this->_objectTags
             );
-            
+
             $headerValue = array();
-            
+
             foreach (array_chunk($objects, self::HEADER_OBJECTS_ITEMS) as $objectSubset) {
                 $headerValue[] = implode(',', $objectSubset);
             }
-            
+
             $this->setVarnishHeader(
-                self::HEADER_OBJECTS, 
+                self::HEADER_OBJECTS,
                 $headerValue
             );
         }
-        
+
         if (!$this->hasVarnishHeader(self::HEADER_SEGMENT)) {
             $this->setVarnishHeader(self::HEADER_SEGMENT, $this->hashData($this->getCustomerSegment()));
         }
-        
+
         if (!$this->hasVarnishHeader(self::HEADER_STORE)) {
             $this->setVarnishHeader(self::HEADER_STORE, Mage::app()->getStore()->getCode());
         }
@@ -205,15 +205,15 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Returns current page info
-     * 
-     * 
+     *
+     *
      */
     public function getCurrentPageInfo()
     {
         $result = array(
             'handle' => $this->getCurrentPage()
         );
-        
+
         if (Mage::registry('current_category') instanceof Mage_Catalog_Model_Category) {
             $result['category'] = Mage::registry('current_category')->getId();
         }
@@ -221,13 +221,13 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
         if (Mage::registry('current_product') instanceof Mage_Catalog_Model_Product) {
             $result['product'] = Mage::registry('current_product')->getId();
         }
-        
+
         return $result;
     }
-    
+
     /**
      * Set ESI is allowed flag
-     * 
+     *
      * @param bool $flag
      * @return $this
      */
@@ -268,7 +268,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
     {
         return $this->_isEsiUsed;
     }
-    
+
     /**
      * Returns list of varnish headers
      *
@@ -283,7 +283,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Formats object tag
-     * 
+     *
      * @param string $tag
      * @return string
      */
@@ -294,7 +294,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Adds varnish header
-     * 
+     *
      * @param string $name
      * @param string $value
      * @return $this
@@ -302,25 +302,25 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
     public function addVarnishHeader($name, $value)
     {
         $header = $value;
-        
+
         if ($this->hasVarnishHeader($name)) {
             $header = $this->getVarnishHeader($name);
-            
+
             if (!is_array($header)) {
                 $header = array($header);
             }
-            
+
             $header[] = $value;
-        } 
-        
+        }
+
         $this->setVarnishHeader($name, $header);
-        
+
         return $this;
     }
 
     /**
      * Returns varnish header values
-     * 
+     *
      * @param string $name
      * @return bool|string|string[]
      */
@@ -329,13 +329,13 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
         if (!$this->hasVarnishHeader($name)) {
             return false;
         }
-        
+
         return $this->_varnishHeaders[$name];
     }
 
     /**
      * Add a cookie
-     * 
+     *
      * @param string $name
      * @param string $value
      * @param bool $httpOnly
@@ -349,7 +349,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Return list of cookies that should be sent to browser
-     * 
+     *
      * @return array
      */
     public function getCookies()
@@ -359,7 +359,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Sets (overrides) varnish header
-     * 
+     *
      * @param string $name
      * @param array $value
      * @return $this
@@ -372,7 +372,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Unset varnish header from list
-     * 
+     *
      * @param string $name
      * @return $this
      */
@@ -381,13 +381,13 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
         if ($this->hasVarnishHeader($name)) {
             unset($this->_varnishHeaders[$name]);
         }
-        
+
         return $this;
     }
 
     /**
      * Checks existence of the header in the list
-     * 
+     *
      * @param string $name
      * @return bool
      */
@@ -395,10 +395,10 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
     {
         return isset($this->_varnishHeaders[$name]);
     }
-    
+
     /**
      * Add a new object tag to the list of available ones
-     * 
+     *
      * @param string $tag
      * @return $this
      */
@@ -409,8 +409,8 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Adds a set of tags. 
-     * 
+     * Adds a set of tags.
+     *
      * Passed array should be associative.
      *
      * @param string[] $tags
@@ -424,7 +424,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Returns true if object tag exists
-     * 
+     *
      * @param string $tag
      * @return bool
      */
@@ -435,7 +435,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Unsets object tag
-     * 
+     *
      * @param string $tag
      * @return $this
      */
@@ -444,13 +444,13 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
         if ($this->hasObjectTag($tag)) {
             unset($this->_objectTags[$tag]);
         }
-        
+
         return $this;
     }
 
     /**
      * Adds time to leave for the page
-     * 
+     *
      * @param int $ttl
      * @return $this
      */
@@ -462,26 +462,26 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Init allowed pages from configuration
-     * 
+     *
      * @return $this
      */
     protected function _initAllowedPages()
     {
         if ($this->_allowedPages === null) {
             $this->_allowedPages = array();
-            
+
             foreach (Mage::getConfig()->getNode(self::XML_PATH_ALLOWED_PAGES)->children() as $page => $info) {
                 $module = ($info->getAttribute('module') ? $info->getAttribute('module') : 'ecomdev_varnish');
                 $this->_allowedPages[$page] = Mage::helper($module)->__((string)$info->label);
             }
         }
-        
+
         return $this;
     }
 
     /**
      * Returns allowed pages list
-     * 
+     *
      * @return string[]
      */
     public function getAllowedPages()
@@ -492,7 +492,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Checks if current page is not allowed for varnish cache
-     * 
+     *
      * @return bool
      */
     public function isAllowedCurrentPage()
@@ -502,17 +502,17 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         $this->_initAllowedPages();
-        
+
         if (!$this->getCurrentPage()) {
             return false;
         }
-        
+
         return isset($this->_allowedPages[$this->getCurrentPage()]);
     }
 
     /**
      * Sets the current page
-     * 
+     *
      * @param string $fullActionName
      * @return $this
      */
@@ -524,7 +524,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Returns currently used page name
-     * 
+     *
      * @return string
      */
     public function getCurrentPage()
@@ -534,7 +534,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Returns current page TTL in seconds
-     * 
+     *
      * @return bool|int
      */
     public function getCurrentPageTtl()
@@ -545,13 +545,13 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
                 return $cacheTtl*60;
             }
         }
-        
+
         return false;
     }
 
     /**
      * Returns ESI key
-     * 
+     *
      * @return string
      */
     public function getEsiKey()
@@ -572,7 +572,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Returns true if current action is internal
-     * 
+     *
      * @return bool
      */
     public function getIsInternal()
@@ -582,7 +582,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Sets is internal action flag
-     * 
+     *
      * @param bool $flag
      * @return $this
      */
@@ -594,7 +594,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Returns customer segment data, used as cache segment
-     * 
+     *
      * @return string[]
      */
     public function getCustomerSegment()
@@ -612,7 +612,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         Mage::dispatchEvent('ecomdev_varnish_customer_segment', array('segment' => $segment));
-        
+
         return $segment->getData();
     }
 
@@ -658,10 +658,10 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
 
         return md5($hashData);
     }
-    
+
     /**
-     * Calls a helper depending on internal level of cache of the page 
-     * 
+     * Calls a helper depending on internal level of cache of the page
+     *
      * @param string $helper
      * @param string $method
      * @param mixed $cachedValue
@@ -673,13 +673,13 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
         if ($this->isActive() && !$this->getIsInternal()) {
             return $cachedValue;
         }
-        
+
         $helper = Mage::helper($helper);
-        
+
         if (!empty($args)) {
             return call_user_func_array(array($helper, $method), $args);
         }
-        
+
         return $helper->$method();
     }
 
@@ -691,6 +691,7 @@ class EcomDev_Varnish_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getChecksum($data)
     {
+        unset($data['current']);
         $data['salt'] = $this->getEsiKey();
         ksort($data);
         return md5(json_encode($data));
