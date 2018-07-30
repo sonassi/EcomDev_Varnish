@@ -31,6 +31,9 @@
             <ecomdev_varnish_resource>
                 <class>EcomDev_Varnish_Model_Resource</class>
             </ecomdev_varnish_resource>
+            <customer>
+                <rewrite><session>EcomDev_Varnish_Model_Customer_Session</session></rewrite>
+            </customer>
         </models>
         <blocks>
             <ecomdev_varnish>
