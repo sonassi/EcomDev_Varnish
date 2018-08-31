@@ -43,10 +43,10 @@ EcomDev.Storage = Class.create({
 
         return false;
     },
-    
+
     /**
-     * Returns false if storage is not available 
-     * 
+     * Returns false if storage is not available
+     *
      * @returns {Boolean}
      */
     isAvailable: function () {
@@ -56,7 +56,7 @@ EcomDev.Storage = Class.create({
     /**
      * Returns a storage if it is available,
      * otherwise returns false
-     *  
+     *
      * @returns {Storage|Boolean}
      */
     getStorage: function () {
@@ -65,7 +65,7 @@ EcomDev.Storage = Class.create({
         } else if (this.isSessionAvaiable) {
             return window.sessionStorage;
         }
-        
+
         return false;
     },
     setValue: function (name, value) {
@@ -74,10 +74,10 @@ EcomDev.Storage = Class.create({
             value = Object.toJSON(value);
             isSerialized = '1';
         }
-        
+
         if (this.isAvailable()) {
             this.getStorage().setItem(
-                this.namespace + '_' + name, 
+                this.namespace + '_' + name,
                 value
             );
             this.getStorage().setItem(
@@ -85,7 +85,7 @@ EcomDev.Storage = Class.create({
                 isSerialized
             )
         }
-        
+
         return this;
     },
 
@@ -106,7 +106,7 @@ EcomDev.Storage = Class.create({
 
     /**
      * Retrieves a value from storage
-     * 
+     *
      * @param name
      * @returns {*}
      */
@@ -115,7 +115,7 @@ EcomDev.Storage = Class.create({
             var isSerialized = this.getStorage().getItem(
                 this.namespace + '_is_serialized_' + name
             );
-            
+
             if (isSerialized !== '' && isSerialized !== undefined) {
                 isSerialized = parseInt(isSerialized);
                 var value = this.getStorage().getItem(this.namespace + '_' + name);
@@ -126,7 +126,7 @@ EcomDev.Storage = Class.create({
                 return value;
             }
         }
-        
+
         return false;
     }
 });
@@ -205,7 +205,7 @@ EcomDev.Varnish.AjaxBlock = Class.create({
         if (!this.config.cookie) {
             return isReload || false;
         }
-        
+
         if (!this.validateCookieValue(this.config.cookie, this.storage.getValue('cookie'))) {
             return isReload && !this.isCookieSet(this.config.cookie);
         }
@@ -257,14 +257,14 @@ EcomDev.Varnish.AjaxBlock = Class.create({
 
     /**
      * Returns cookie value
-     * 
+     *
      * @returns {Boolean|String}
      */
     getCookieValue: function () {
         if (this.config.cookie) {
             return this.getCookieValueByName(this.config.cookie);
         }
-        
+
         return false;
     }
 });
@@ -289,7 +289,7 @@ Object.extend(EcomDev.Varnish.AjaxBlock, {
         for (var i = 0, l=this.initCallbacks.length; i < l; i ++) {
             this.initCallbacks[i]();
         }
-        
+
         this.processBlocks();
     },
     processBlocks: function () {
@@ -305,7 +305,7 @@ Object.extend(EcomDev.Varnish.AjaxBlock, {
             }
         }
 
-        
+
         if (reloadBlocks.length > 0 && this.url) {
             new Ajax.Request(this.url, {
                 parameters: {
@@ -341,7 +341,7 @@ EcomDev.Varnish.Esi = Class.create({
             // Invoke dom initialization directly if possible
             this.emulate();
         }
-        EcomDev.Varnish.Esi.addInstance(this);  
+        EcomDev.Varnish.Esi.addInstance(this);
     },
     emulate: function () {
         if (this.isEmulated) {
@@ -349,7 +349,7 @@ EcomDev.Varnish.Esi = Class.create({
         }
 
         this.container = $(this.config.container);
-        
+
         if (this.storage.getValue('html')) {
             this.container.update(this.storage.getValue('html'));
         } else {
@@ -360,7 +360,7 @@ EcomDev.Varnish.Esi = Class.create({
                 }
             });
         }
-        
+
         this.isEmulated = true;
     }
 });
@@ -407,13 +407,13 @@ EcomDev.Varnish.Url = Class.create({
             } else if (pair.key == param) {
                 return;
             }
-            
+
             query += encodeURIComponent(pair.key) + '=' + encodeURIComponent(pair.value);
         });
         var url = this.url;
         if (query.length > 0) {
             url += '?' + query;
-        } 
+        }
         window.location.href = url;
     }
 });
@@ -493,7 +493,7 @@ EcomDev.Varnish.Token = Class.create({
     replaceKeyInUrl: function (url) {
         if (url.match('/' + this.urlKeyParam) + '/') {
             url = url.replace(
-                new RegExp('/' + RegExp.escape(this.urlKeyParam) + '/[^/]/', 'g'),
+                new RegExp('/' + RegExp.escape(this.urlKeyParam) + '/[^/]+/', 'g'),
                 '/' + this.urlKeyParam + '/' + this.getTokenValue() + '/'
             );
         }
@@ -580,7 +580,7 @@ Object.extend(EcomDev.Varnish, {
 });
 
 document.observe(
-    'dom:loaded', 
+    'dom:loaded',
     EcomDev.Varnish.onDomReady.bind(EcomDev.Varnish)
 );
 
