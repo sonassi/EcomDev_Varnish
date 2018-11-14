@@ -37,9 +37,13 @@ class EcomDev_Varnish_Model_Processor_Cms_Block
      */
     protected function _collectTags($object)
     {
+        $tags = [];
+
         if ($object instanceof Mage_Cms_Model_Block) {
-            return self::TAG_PREFIX . $object->getIdentifier();
+            $tags[] = self::TAG_PREFIX . $object->getIdentifier();
         }
-        return self::TAG_PREFIX . $object->getId();
+        $tags[] = self::TAG_PREFIX . $object->getId();
+
+        return $tags;
     }
 }
