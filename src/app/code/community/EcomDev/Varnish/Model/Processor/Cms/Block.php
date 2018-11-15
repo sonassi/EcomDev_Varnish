@@ -40,9 +40,9 @@ class EcomDev_Varnish_Model_Processor_Cms_Block
         $tags = [];
 
         if ($object instanceof Mage_Cms_Model_Block) {
-            $tags[] = self::TAG_PREFIX . $object->getIdentifier();
+            $tags[self::TAG_PREFIX . $object->getId()] = self::TAG_PREFIX . $object->getIdentifier();
         }
-        $tags[] = self::TAG_PREFIX . $object->getId();
+        $tags[self::TAG_PREFIX . $object->getId()] = self::TAG_PREFIX . $object->getId();
 
         return $tags;
     }
